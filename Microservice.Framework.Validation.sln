@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.31129.286
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microservice.Framework.Validation", "Microservice.Framework.Validation\Microservice.Framework.Validation.csproj", "{F2FCCA64-1C8A-49D3-8670-F652CA3E3CAA}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{F2FCCA64-1C8A-49D3-8670-F652CA3E3CAA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F2FCCA64-1C8A-49D3-8670-F652CA3E3CAA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F2FCCA64-1C8A-49D3-8670-F652CA3E3CAA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F2FCCA64-1C8A-49D3-8670-F652CA3E3CAA}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {69781F94-74D2-4644-9F25-DC0204A0DDD6}
+	EndGlobalSection
+EndGlobal
