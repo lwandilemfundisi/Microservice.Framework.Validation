@@ -38,9 +38,9 @@ namespace Microservice.Framework.Validation
 
         #region Public Methods
 
-        public ConcurrentDictionary<Type, Notification> ValidateEntity()
+        public Task<ConcurrentDictionary<Type, Notification>> ValidateEntityAsync()
         {
-            return ValidateRules(Entity);
+            return ValidateRulesAsync(Entity);
         }
 
         #endregion
@@ -49,14 +49,15 @@ namespace Microservice.Framework.Validation
 
         private void FetchRules()
         {
-            if(!entityRules.ContainsKey(TypeOfEntity))
+            if (!entityRules.ContainsKey(TypeOfEntity))
             {
-                lock(syncer)
+                lock (syncer)
                 {
                     if (!entityRules.ContainsKey(TypeOfEntity))
                     {
                         entityRules.SafeAddKey(TypeOfEntity, new List<Type>());
 
+                        //I shouldn't get all assemblies, this is not efficient
                         var allAssemblies = AppDomain.CurrentDomain.GetAssemblies();
 
                         foreach (var assembly in allAssemblies.Where(c => !c.FullName.Contains("NHibernate")).AsEnumerable())
@@ -76,32 +77,34 @@ namespace Microservice.Framework.Validation
             }
         }
 
-        private ConcurrentDictionary<Type, Notification> ValidateRules(T entity)
+        private Task<ConcurrentDictionary<Type, Notification>> ValidateRulesAsync(T entity)
         {
-            var noticationDictionary = new ConcurrentDictionary<Type, Notification>();
+            return Task.Run(() => {
+                var noticationDictionary = new ConcurrentDictionary<Type, Notification>();
 
-            Parallel.ForEach(entityRules[TypeOfEntity], (rule) => 
-            {
-                var notification = NotificationHelper.CreateNotification(entity.GetType(), rule);
-
-                noticationDictionary.TryAdd(rule, notification);
-
-                var actualRules = CreatePropertyRules(rule, entity);
-
-                Parallel.ForEach(actualRules, (actualRule) => 
+                Parallel.ForEach(entityRules[TypeOfEntity], (rule) =>
                 {
-                    if (actualRule.MustValidate())
-                    {
-                        var notificationMessage = actualRule.Validate();
-                        if (notificationMessage.IsNotNull())
-                        {
-                            notification.Append(notificationMessage);
-                        }
-                    }
-                });
-            });
+                    var notification = NotificationHelper.CreateNotification(entity.GetType(), rule);
 
-            return noticationDictionary;
+                    noticationDictionary.TryAdd(rule, notification);
+
+                    var actualRules = CreatePropertyRules(rule, entity);
+
+                    Parallel.ForEach(actualRules, (actualRule) =>
+                    {
+                        if (actualRule.MustValidate())
+                        {
+                            var notificationMessage = actualRule.Validate();
+                            if (notificationMessage.IsNotNull())
+                            {
+                                notification.Append(notificationMessage);
+                            }
+                        }
+                    });
+                });
+
+                return noticationDictionary;
+            });
         }
 
         public IList<IDomainRule<T>> CreatePropertyRules(Type ruleType, T entity)
@@ -112,10 +115,9 @@ namespace Microservice.Framework.Validation
 
             foreach(var customAttribute in customAttributes)
             {
-                var propertyNameToValidate = customAttribute.ConstructorArguments.FirstOrDefault();
-
-                if (propertyNameToValidate != null)
+                if (customAttribute.ConstructorArguments.HasItems())
                 {
+                    var propertyNameToValidate = customAttribute.ConstructorArguments.FirstOrDefault();
                     var rule = CreateRule(ruleType, entity);
                     rule.Property = entity.GetType().GetProperty(propertyNameToValidate.Value.ToString());
                     propertyRules.Add(rule);

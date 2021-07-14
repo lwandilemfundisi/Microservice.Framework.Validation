@@ -12,8 +12,6 @@ namespace Microservice.Framework.Validation
         protected DomainRule(T owner)
         {
             Owner = owner;
-
-            Construct();
         }
 
         #endregion
@@ -73,7 +71,7 @@ namespace Microservice.Framework.Validation
             {
                 if (!ValidationCondition())
                 {
-                    message = NotificationHelper.CreateNotificationMessage(string.Format(ValidationMessage, Property.Name.ToString()), Property, NotificationMessageType.Error);
+                    message = NotificationHelper.CreateNotificationMessage(ValidationMessage.FormatInvariantCulture(Property.Name.ToString()), Property, NotificationMessageType.Error);
                 }
             }
 
@@ -89,11 +87,6 @@ namespace Microservice.Framework.Validation
 
         #region Private Methods
 
-        private void Construct()
-        {
-
-        }
-
         protected bool PropertyHasValue()
         {
             if (!propertyHasValue.HasValue)
@@ -108,11 +101,7 @@ namespace Microservice.Framework.Validation
                     }
                     else if (enumerableType.IsAssignableFrom(PropertyType.PropertyType))
                     {
-                        var list = PropertyValue as IList;
-                        if (list.IsNotNull())
-                        {
-                            propertyHasValue = list.Count > 0;
-                        }
+                        propertyHasValue = (PropertyValue as IList).HasItems();
                     }
                     else
                     {

@@ -11,7 +11,7 @@ namespace Microservice.Framework.Validation
 
         public Notification(Type entityType, Type ruleType)
         {
-            Construct();
+            Construct(entityType, ruleType);
         }
 
         #endregion
@@ -69,8 +69,10 @@ namespace Microservice.Framework.Validation
 
         #region Private Methods
 
-        private void Construct()
+        private void Construct(Type entityType, Type ruleType)
         {
+            EntityType = entityType;
+            RuleType = ruleType;
             OccuredOn = DateTime.Now;
             Messages = new ConcurrentQueue<NotificationMessage>();
         }
